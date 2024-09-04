@@ -19,6 +19,11 @@ const LoginPage = () => {
     dispatch(userLoggedIn(username))
     navigate('/posts')
   }
+  const userOptions = users.map((user) => (
+    <option key={user.id} value={user.id}>
+      {user.name}
+    </option>
+  ))
   return (
     <section>
       <h2>Welcome to Tweeter</h2>
@@ -27,6 +32,7 @@ const LoginPage = () => {
         <label htmlFor="username">User:</label>
         <select id="username" required name="username">
           <option value={''}></option>
+          {userOptions}
         </select>
         <button>Log In</button>
       </form>
