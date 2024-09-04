@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import React, { FormEvent } from 'react'
-import { postUpdated } from './postsSlice'
+import { postUpdated, selectPostById } from './postsSlice'
 import { useNavigate, useParams } from 'react-router-dom'
 interface EditPostFormFields extends HTMLFormControlsCollection {
   postTitle: HTMLInputElement
@@ -11,7 +11,7 @@ interface EditPostFormElements extends HTMLFormElement {
 }
 function EditPostForm() {
   const { postId } = useParams()
-  const post = useAppSelector((state) => state.posts.find((post) => post.id === postId))
+  const post = useAppSelector((state) => selectPostById(state, postId!))
   if (!post) {
     return (
       <section>
