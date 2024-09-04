@@ -4,10 +4,12 @@ import { Link, useParams } from 'react-router-dom'
 import { selectPostById } from './postsSlice'
 import PostAuthor from './PostAuthor'
 import ReactionButtons from './ReactionButtons'
+import { selectCurrentUsername } from '../auth/authSlice'
 
 function SinglePostPage() {
   const { postId } = useParams()
   const post = useAppSelector((state) => selectPostById(state, postId!))
+  const currentUsername = useAppSelector(selectCurrentUsername)!
   if (!post) {
     return (
       <section>
@@ -15,6 +17,7 @@ function SinglePostPage() {
       </section>
     )
   }
+  const canEdit = currentUsername === post.user
   return (
     <section>
       <article className="post">
@@ -22,9 +25,11 @@ function SinglePostPage() {
         <PostAuthor userId={post.user} />
         <p className="post-content"> {post.content}</p>
         <ReactionButtons post={post} />
-        <Link to={`/editPost/${post.id}`} className="button">
-          Edit Post
-        </Link>
+        {canEdit && (
+          <Link to={`/editPost/${post.id}`} className="button">
+            Edit Post
+          </Link>
+        )}
       </article>
     </section>
   )
