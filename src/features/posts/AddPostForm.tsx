@@ -13,13 +13,14 @@ interface AddPostFormElements extends HTMLFormElement {
 }
 const AddPostForm = () => {
   const dispatch = useAppDispatch()
+  const userId = useAppSelector(selectCurrentUsername)!
   const users = useAppSelector(selectAllUsers)
   const handleSubmit = (e: React.FormEvent<AddPostFormElements>) => {
     e.preventDefault()
     const { elements } = e.currentTarget
     const title = elements.postTitle.value
     const content = elements.postContent.value
-    const userId = useAppSelector(selectCurrentUsername)!
+
     dispatch(postAdded(title, content, userId))
     console.log({ title, content, userId }, 'values======')
     e.currentTarget.reset()
