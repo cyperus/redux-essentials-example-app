@@ -1,15 +1,25 @@
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import React, { memo, ReactNode, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { fetchPosts, Post, selectAllPosts, selectPostsError, selectPostsStatus } from './postsSlice'
+import {
+  fetchPosts,
+  Post,
+  selectAllPosts,
+  selectPostById,
+  selectPostIds,
+  selectPostsError,
+  selectPostsStatus,
+} from './postsSlice'
 import PostAuthor from './PostAuthor'
 import ReactionButtons from './ReactionButtons'
 import { Spinner } from '@/components/Spinner'
+import { useSelector } from 'react-redux'
 interface PostExcerptProps {
-  post: Post
+  postId: string
 }
 
-const PostExcerpt = memo(({ post }: PostExcerptProps) => {
+const PostExcerpt = memo(({ postId }: PostExcerptProps) => {
+  const post = useAppSelector((state) => selectPostById(state, postId))
   return (
     <article className="post-excerpt" key={post.id}>
       <h3>
@@ -24,6 +34,7 @@ const PostExcerpt = memo(({ post }: PostExcerptProps) => {
 
 const PostsList = () => {
   const dispatch = useAppDispatch()
+  const orderedPostIds = useSelector(selectPostIds)
   const posts = useAppSelector(selectAllPosts)
   const postStatus = useAppSelector(selectPostsStatus)
   const postsError = useAppSelector(selectPostsError)
@@ -37,8 +48,7 @@ const PostsList = () => {
   if (postStatus === 'pending') {
     content = <Spinner text="Loading..." />
   } else if (postStatus === 'succeeded') {
-    const orderedPost = posts.slice().sort((a, b) => b.date.localeCompare(a.date))
-    content = orderedPost.map((post) => <PostExcerpt post={post} key={post.id} />)
+    content = orderedPostIds.map((postId) => <PostExcerpt postId={postId} key={postId} />)
   } else if (postStatus === 'rejected') {
     content = <div>{postsError}</div>
   }
