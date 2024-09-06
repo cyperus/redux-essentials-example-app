@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
-import React, { ReactNode, useEffect } from 'react'
+import React, { memo, ReactNode, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchPosts, Post, selectAllPosts, selectPostsError, selectPostsStatus } from './postsSlice'
 import PostAuthor from './PostAuthor'
@@ -8,7 +8,8 @@ import { Spinner } from '@/components/Spinner'
 interface PostExcerptProps {
   post: Post
 }
-function PostExcerpt({ post }: PostExcerptProps) {
+
+const PostExcerpt = memo(({ post }: PostExcerptProps) => {
   return (
     <article className="post-excerpt" key={post.id}>
       <h3>
@@ -19,7 +20,8 @@ function PostExcerpt({ post }: PostExcerptProps) {
       <ReactionButtons post={post} />
     </article>
   )
-}
+})
+
 const PostsList = () => {
   const dispatch = useAppDispatch()
   const posts = useAppSelector(selectAllPosts)

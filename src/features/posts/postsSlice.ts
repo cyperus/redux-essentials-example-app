@@ -1,5 +1,5 @@
 import { RootState } from '@/app/store'
-import { createSelector, createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSelector, createSlice, EntityState, nanoid, PayloadAction } from '@reduxjs/toolkit'
 import { sub } from 'date-fns'
 import { logout } from '../auth/authSlice'
 import { createAppAsyncThunk } from '@/app/withTypes'
@@ -29,11 +29,17 @@ const initialReactions: Reactions = {
   rocket: 0,
   eyes: 0,
 }
-interface PostsState {
-  posts: Post[]
+interface PostsState extends EntityState<Post, string> {
   status: 'idle' | 'pending' | 'succeeded' | 'rejected'
   error: string | null
 }
+const postsAdapter = createEntityAdapter<Post>({
+  sortComparer: (a, b) => b.date.localeCompare(a.date),
+})
+const initialState: PostsState = postsAdapter.getInitialState({
+  status: 'idle',
+  error: null,
+})
 type NewPost = Pick<Post, 'title' | 'content' | 'user'>
 export const addNewPost = createAppAsyncThunk('/posts/addNewPost', async (initialPost: NewPost) => {
   const response = await client.post<Post>('/fakeApi/posts', initialPost)
@@ -54,26 +60,18 @@ export const fetchPosts = createAppAsyncThunk(
     },
   },
 )
-const initialState: PostsState = {
-  posts: [],
-  status: 'idle',
-  error: null,
-}
+
 const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
     postUpdated(state, action: PayloadAction<PostUpdate>) {
       const { id, title, content } = action.payload
-      const existingPost = state.posts.find((post) => post.id === id)
-      if (existingPost) {
-        existingPost.title = title
-        existingPost.content = content
-      }
+      postsAdapter.updateOne(state, { id, changes: { title, content } })
     },
     reactionAdded(state, action: PayloadAction<{ postId: string; reaction: ReactionName }>) {
       const { postId, reaction } = action.payload
-      const existingPost = state.posts.find((post) => post.id === postId)
+      const existingPost = state.entities[postId]
       if (existingPost) {
         existingPost.reactions[reaction]++
       }
@@ -89,22 +87,23 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.posts.push(...action.payload)
+        postsAdapter.setAll(state, action.payload)
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = 'rejected'
         state.error = action.error.message ?? 'Unknown Error'
       })
-      .addCase(addNewPost.fulfilled, (state, action) => {
-        state.posts.push(action.payload)
-      })
+      .addCase(addNewPost.fulfilled, postsAdapter.addOne)
   },
 })
 // export the auto-generated action creator with the same name
 export const { postUpdated, reactionAdded } = postsSlice.actions
 export default postsSlice.reducer
-export const selectAllPosts = (state: RootState) => state.posts.posts
-export const selectPostById = (state: RootState, postId: string) => state.posts.posts.find((post) => post.id === postId)
+export const {
+  selectAll: selectAllPosts,
+  selectById: selectPostById,
+  selectIds: selectPostIds,
+} = postsAdapter.getSelectors((state: RootState) => state.posts)
 export const selectPostsStatus = (state: RootState) => state.posts.status
 export const selectPostsError = (state: RootState) => state.posts.error
 export const selectPostsByUser = createSelector(
