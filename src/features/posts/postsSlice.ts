@@ -4,6 +4,7 @@ import { sub } from 'date-fns'
 import { logout } from '../auth/authSlice'
 import { createAppAsyncThunk } from '@/app/withTypes'
 import { client } from '@/api/client'
+import { AppStartListenning } from '@/app/listenerMiddleware'
 
 export interface Reactions {
   thumbsUp: number
@@ -110,3 +111,18 @@ export const selectPostsByUser = createSelector(
   [selectAllPosts, (state: RootState, userId: string) => userId],
   (posts, userId) => posts.filter((post) => post.user === userId),
 )
+export const addPostsListeners = (startAppListening: AppStartListenning) => {
+  startAppListening({
+    actionCreator: addNewPost.fulfilled,
+    effect: async (action, listenerApi) => {
+      const { toast } = await import('react-tiny-toast')
+      const toastId = toast.show('New post added!', {
+        variant: 'success',
+        position: 'bottom-right',
+        pause: true,
+      })
+      await listenerApi.delay(5000)
+      toast.remove(toastId)
+    },
+  })
+}
