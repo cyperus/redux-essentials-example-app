@@ -30,7 +30,3 @@ export const selectCurrentUser = (state: RootState) => {
   const currentUsername = selectCurrentUsername(state)
   return selectUserById(state, currentUsername!)
 }
-export const selectPostsByUser = (state: RootState, userId: string) => {
-  const allPosts = selectAllPosts(state)
-  return allPosts.filter((post) => post.user === userId)
-}

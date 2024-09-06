@@ -1,5 +1,5 @@
 import { RootState } from '@/app/store'
-import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit'
+import { createSelector, createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit'
 import { sub } from 'date-fns'
 import { logout } from '../auth/authSlice'
 import { createAppAsyncThunk } from '@/app/withTypes'
@@ -107,3 +107,7 @@ export const selectAllPosts = (state: RootState) => state.posts.posts
 export const selectPostById = (state: RootState, postId: string) => state.posts.posts.find((post) => post.id === postId)
 export const selectPostsStatus = (state: RootState) => state.posts.status
 export const selectPostsError = (state: RootState) => state.posts.error
+export const selectPostsByUser = createSelector(
+  [selectAllPosts, (state: RootState, userId: string) => userId],
+  (posts, userId) => posts.filter((post) => post.user === userId),
+)
