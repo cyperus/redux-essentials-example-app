@@ -1,7 +1,7 @@
 import { RootState } from '@/app/store'
 import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit'
 import { sub } from 'date-fns'
-import { userLoggedOut } from '../auth/authSlice'
+import { logout } from '../auth/authSlice'
 import { createAppAsyncThunk } from '@/app/withTypes'
 import { client } from '@/api/client'
 
@@ -81,7 +81,7 @@ const postsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(userLoggedOut, (state) => {
+      .addCase(logout.fulfilled, (state) => {
         return initialState
       })
       .addCase(fetchPosts.pending, (state, action) => {

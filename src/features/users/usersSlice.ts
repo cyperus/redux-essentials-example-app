@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { selectCurrentUsername } from '../auth/authSlice'
 import { createAppAsyncThunk } from '@/app/withTypes'
 import { client } from '@/api/client'
+import { selectAllPosts } from '../posts/postsSlice'
 interface User {
   id: string
   name: string
@@ -28,4 +29,8 @@ export const selectUserById = (state: RootState, userId: string) => state.users.
 export const selectCurrentUser = (state: RootState) => {
   const currentUsername = selectCurrentUsername(state)
   return selectUserById(state, currentUsername!)
+}
+export const selectPostsByUser = (state: RootState, userId: string) => {
+  const allPosts = selectAllPosts(state)
+  return allPosts.filter((post) => post.user === userId)
 }
