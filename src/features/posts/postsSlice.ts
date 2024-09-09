@@ -22,7 +22,7 @@ export interface Post {
   date: string
   reactions: Reactions
 }
-type PostUpdate = Pick<Post, 'id' | 'title' | 'content'>
+export type PostUpdate = Pick<Post, 'id' | 'title' | 'content'>
 const initialReactions: Reactions = {
   thumbsUp: 0,
   tada: 0,
@@ -41,7 +41,7 @@ const initialState: PostsState = postsAdapter.getInitialState({
   status: 'idle',
   error: null,
 })
-type NewPost = Pick<Post, 'title' | 'content' | 'user'>
+export type NewPost = Pick<Post, 'title' | 'content' | 'user'>
 export const addNewPost = createAppAsyncThunk('/posts/addNewPost', async (initialPost: NewPost) => {
   const response = await client.post<Post>('/fakeApi/posts', initialPost)
   return response.data

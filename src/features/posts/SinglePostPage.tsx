@@ -1,15 +1,18 @@
 import { useAppSelector } from '@/app/hooks'
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { selectPostById } from './postsSlice'
 import PostAuthor from './PostAuthor'
 import ReactionButtons from './ReactionButtons'
 import { selectCurrentUsername } from '../auth/authSlice'
+import { useGetPostQuery } from '../api/apiSlice'
+import { Spinner } from '@/components/Spinner'
 
 function SinglePostPage() {
   const { postId } = useParams()
-  const post = useAppSelector((state) => selectPostById(state, postId!))
   const currentUsername = useAppSelector(selectCurrentUsername)!
+  const { data: post, isFetching, isSuccess } = useGetPostQuery(postId!)
+  let content: ReactNode
   if (!post) {
     return (
       <section>
@@ -18,8 +21,10 @@ function SinglePostPage() {
     )
   }
   const canEdit = currentUsername === post.user
-  return (
-    <section>
+  if (isFetching) {
+    content = <Spinner text="Loading..." />
+  } else if (isSuccess) {
+    content = (
       <article className="post">
         <h2>{post.title}</h2>
         <PostAuthor userId={post.user} />
@@ -31,8 +36,9 @@ function SinglePostPage() {
           </Link>
         )}
       </article>
-    </section>
-  )
+    )
+  }
+  return <section>{content}</section>
 }
 
 export default SinglePostPage

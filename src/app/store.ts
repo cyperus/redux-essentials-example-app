@@ -4,6 +4,7 @@ import usersReducer from '@/features/users/usersSlice'
 import authReducer from '@/features/auth/authSlice'
 import notificationsReducer from '@/features/notifications/notificationsSlice'
 import { listenerMiddleware } from './listenerMiddleware'
+import { apiSlice } from '@/features/api/apiSlice'
 export const store = configureStore({
   // Pass in the root reducer setup as the `reducer` argument
   reducer: {
@@ -12,9 +13,10 @@ export const store = configureStore({
     users: usersReducer,
     auth: authReducer,
     notifications: notificationsReducer,
+    [apiSlice.reducerPath]: apiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) => {
-    return getDefaultMiddleware().prepend(listenerMiddleware.middleware)
+    return getDefaultMiddleware().prepend(listenerMiddleware.middleware).concat(apiSlice.middleware)
   },
 })
 export type AppStore = typeof store
